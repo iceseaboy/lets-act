@@ -43,7 +43,7 @@ final class LetsActUITests: XCTestCase {
         XCTAssertEqual(numbers.count, 2)
         let answer = app.textFields["parent-answer"]
         answer.tap(); answer.typeText(String(numbers[0] * numbers[1]))
-        app.buttons["Continue"].tap()
+        app.buttons["Unlock director area"].tap()
         XCTAssertTrue(app.buttons["Create a show"].waitForExistence(timeout: 5))
         app.buttons["Create a show"].tap()
         app.textFields["show-title"].tap(); app.textFields["show-title"].typeText("Garden rehearsal")
