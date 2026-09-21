@@ -56,10 +56,10 @@ struct PracticeView: View {
                 HStack(spacing: 14) {
                     RoleAvatar(character: character, size: 52, active: active)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(character.name.capitalized).font(.system(.headline, design: .rounded))
+                        Text(character.name.capitalized).font(.system(.headline, design: .rounded)).foregroundStyle(active ? StageStyle.ink : StageStyle.muted)
                         Text(controller.engine.show.childRoles.contains(character.id) ? "You" : "Scene partner").font(.caption).foregroundStyle(StageStyle.muted)
                     }
-                }.opacity(active ? 1 : 0.6)
+                }
             }
             Spacer(minLength: 16)
             Text("One line at a time.").font(.system(.subheadline, design: .rounded)).foregroundStyle(StageStyle.muted)

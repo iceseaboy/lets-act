@@ -36,6 +36,7 @@ final class ShowStore: ObservableObject {
     var activeShow: Show? { state.shows.first { $0.id == state.activeShowId } ?? state.shows.first }
     func show(_ id: String) -> Show? { state.shows.first { $0.id == id } }
     func save(_ show: Show) {
+        guard !loadFailed else { error = "Saving is unavailable while the existing library cannot be read. Your original file is preserved; restore it before making changes."; return }
         if let index = state.shows.firstIndex(where: { $0.id == show.id }) { state.shows[index] = show }
         else { state.shows.append(show) }
         state.activeShowId = show.id
