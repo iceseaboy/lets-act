@@ -75,7 +75,8 @@ struct ChildHomeView: View {
                         Eyebrow(text: "Your next rehearsal")
                         Text(scene.title).font(.system(.title2, design: .rounded).bold())
                         let total = show.assignedLines.filter { $0.sceneId == scene.id }.count
-                        Text("\(total) of your lines · \(show.sceneState(scene.id))").font(.subheadline).foregroundStyle(StageStyle.muted)
+                        let remaining = show.assignedLines.filter { $0.sceneId == scene.id && show.progress[$0.id]?.state(settings: show.settings) != .mastered }.count
+                        Text("\(remaining) of \(total) lines to learn · \(show.sceneState(scene.id))").font(.subheadline).foregroundStyle(StageStyle.muted)
                     }
                     Spacer()
                     if show.scenes.count > 1 {

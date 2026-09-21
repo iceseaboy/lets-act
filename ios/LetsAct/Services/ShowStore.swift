@@ -8,10 +8,17 @@ final class ShowStore: ObservableObject {
     private var loadFailed = false
 
     init() {
-        let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("LetsAct", isDirectory: true)
+        // Test data uses a separate container; a UI test can never reset a user's shows.
+        #if DEBUG
+        let testing = ProcessInfo.processInfo.arguments.contains("--ui-testing")
+        #else
+        let testing = false
+        #endif
+        let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent(testing ? "LetsAct-UITests" : "LetsAct", isDirectory: true)
         file = directory.appendingPathComponent("shows-v1.json")
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            if testing && FileManager.default.fileExists(atPath: file.path) { try FileManager.default.removeItem(at: file) }
             if FileManager.default.fileExists(atPath: file.path) {
                 let loaded = try JSONDecoder().decode(LibraryState.self, from: Data(contentsOf: file))
                 guard loaded.schemaVersion == 1 else { throw CocoaError(.fileReadCorruptFile) }

@@ -46,7 +46,13 @@ struct ImportShowView: View {
                     }.navigationTitle("Create a show")
                 }
             }
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.disabled(busy) } }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.disabled(busy) }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done editing") { UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil) }
+                }
+            }
             .interactiveDismissDisabled(busy)
             .sheet(isPresented: $scanning) { DocumentScanner { result in
                 switch result { case .success(let images): recognize(images); case .failure(let failure): error = failure.localizedDescription }

@@ -48,6 +48,9 @@ final class PracticeController: ObservableObject {
     }
     func demonstrate() {
         guard let line = engine.current else { return }
+        if !engine.isChildTurn || engine.mode == .listen {
+            pause(); running = true; perform(); return
+        }
         pause(); running = true; engine.usedDemonstration = true
         let token = generation
         status = "Listen to your line"
