@@ -28,7 +28,7 @@ The illustration is a lightweight SwiftUI spotlight, not a remotely loaded depen
 | Practice | Scene partner voices; own turn; optional full text |
 | Off Book | Hidden child lines; first word → three words → full line hints |
 | Progress | Local exact-word comparison; New/Learning/Remembered/Mastered; scene readiness |
-| Parent gate | Device owner authentication with multiplication fallback; background exits director mode |
+| Parent gate | Device owner authentication with multiplication fallback; background closes director mode and pending verification |
 | Persistence | Versioned atomic JSON, device file protection, load failure preserves original data |
 
 An unavailable or denied recognition service falls back to manual Next. **Manual Next never claims success or mastery.** Skipping through a scene counts as completing its playback, not mastering its lines.
@@ -46,7 +46,7 @@ An unavailable or denied recognition service falls back to manual Next. **Manual
 
 Script matching normalizes case, width, accents and punctuation, preserves word order, and uses token edit distance. CJK ideographs are compared individually. Three-word-or-shorter cues require exact normalized matches; longer lines use age thresholds of 0.80 / 0.88 / 0.94. This is rehearsal assistance, not a pronunciation or acting assessment.
 
-Mastery defaults to three successful unprompted attempts across two sessions. A new session starts on entering a player. Read/repeat/full-text practice/hints/demonstrations cannot earn unprompted credit. Editing a line’s text, type or speaker clears that line’s old progress. Settings can raise mastery thresholds. Persisted attempts contain only date, session ID, score, success and prompt status: no transcript or audio.
+Mastery defaults to three successful unprompted attempts across two sessions. A new session starts on entering a player. Read/repeat/full-text practice/hints/demonstrations cannot earn unprompted credit. Every save reconciles progress: editing a line’s text, type or speaker clears that line’s old progress; deleting or moving a bookmarked line clears the stale position. Settings can raise mastery thresholds. Persisted attempts contain only date, session ID, score, success and prompt status: no transcript or audio.
 
 Recognition always requires on-device support. It never silently invokes cloud transcription. A 1.8-second quiet interval after a changed transcript ends a turn, with a 45-second upper bound. Younger children may need to retry if a long thinking pause ends a turn. Interruption, app inactivity and headphone removal stop audio; resuming restarts the current line. Voice selection uses installed voices, with pitch differences as a fallback where voice inventory is limited.
 
@@ -54,7 +54,7 @@ The sample opens ready to practice. Imported shows are drafts until an adult exp
 
 ## Verification and release status
 
-Local validation: ten Swift core tests and six Node service tests passed; all Swift source files pass Swift parser syntax checking. iOS framework type checking, simulator UI tests and screenshots are handled by the macOS CI workflow; consult the actual workflow result, not syntax checks, for build success.
+Verified on 2026-09-22 at code commit `b6245ff`: 13 Swift core tests and 6 Node service tests passed. The iOS Simulator build and all 5 UI tests passed on both iPad (landscape) and iPhone (portrait). The UI suite covers the real parent question/keyboard, rejected answers, text import, multiple roles, entering Off Book, hidden text, draft and confirmed-show persistence, and background relocking. Xcode results and screenshots are attached to [CI run 35670167607](https://github.com/iceseaboy/lets-act/actions/runs/35670167607). This is simulator validation; it does not substitute for the physical-device checklist.
 
 This is an implementation for development and device evaluation, **not an App Store submission or signed installable IPA**. No Apple signing identity, provisioning profile, cloud deployment, real provider key or TestFlight access was supplied. Before release, complete `device-validation.md`, exercise the real parsing provider, review the app’s privacy labels/manifest against the deployed service, and replace private-pilot shared-token service authorization if enabling cloud parsing publicly.
 

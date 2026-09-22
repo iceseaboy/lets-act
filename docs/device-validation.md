@@ -2,6 +2,12 @@
 
 Run on an iPad in landscape and portrait, and an iPhone in portrait. Automated tests cannot establish microphone quality, camera OCR accuracy or suitability for children.
 
+## Automated coverage
+
+The macOS CI runs a common UI suite on an iPad in landscape and an iPhone in portrait. It exercises the real parent question and keyboard, rejected answers, text import, two-role assignment, entering Off Book, hidden dialogue, saved-show and draft persistence after termination/relaunch, and background relocking. Separate artifacts include screenshots and Xcode results. Consult the linked run in the PR for pass/fail status; these tests do not mark the physical-device checklist below as completed.
+
+The test-only `--ui-testing` launch argument uses a separate data directory and resets it. `--preserve-ui-test-data` retains that test directory during relaunch checks. Both behaviors are compiled only for Debug builds; they never reset the normal user library.
+
 ## Local flow
 
 - Launch offline. Verify the original sample and all five modes are available.

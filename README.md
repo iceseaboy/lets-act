@@ -22,7 +22,7 @@ xcodebuild -project ios/LetsAct.xcodeproj -scheme LetsAct \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
-The generated Xcode project is checked in, so no project-generation tools are needed to open it. CI also runs iPad UI tests and preserves the Xcode result bundle with screenshots.
+The generated Xcode project is checked in, so no project-generation tools are needed to open it. CI runs the same end-to-end UI tests on iPad in landscape and iPhone in portrait, and preserves a separate Xcode result bundle with screenshots for each device. Tests cover parent verification, import and role assignment, off-book text hiding, relaunch persistence, draft restrictions, and background relocking.
 
 - [Implementation, feature map and release gates](docs/implementation.md)
 - [Optional parsing service setup](server/README.md)
