@@ -60,3 +60,12 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+# Let's Act local build and service configuration
+.build/
+.swiftpm/
+build/
+*.xcresult/
+.env
+.env.local
+node_modules/
+__pycache__/
