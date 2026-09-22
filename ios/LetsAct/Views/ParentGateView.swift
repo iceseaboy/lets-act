@@ -3,6 +3,7 @@ import LocalAuthentication
 
 struct ParentGateView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     let onUnlock: () -> Void
     @State private var first = Int.random(in: 12...29)
     @State private var second = Int.random(in: 12...29)
@@ -36,7 +37,15 @@ struct ParentGateView: View {
                     Button("Unlock director area") { verifyAnswer() }
                 }
             }
-        }.onDisappear { isVisible = false; context?.invalidate() }
+        }
+        .onDisappear { isVisible = false; context?.invalidate() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .background {
+                isVisible = false
+                context?.invalidate()
+                dismiss()
+            }
+        }
     }
     private func unlock() { guard isVisible else { return }; onUnlock(); dismiss() }
     private func verifyAnswer() {

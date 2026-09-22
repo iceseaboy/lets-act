@@ -98,4 +98,61 @@ final class CoreTests: XCTestCase {
         XCTAssertTrue(engine.finished)
         XCTAssertNil(engine.current)
     }
+
+    func testScriptEditsInvalidateOnlyAffectedLearningCredit() {
+        var original = Demo.show()
+        for line in original.assignedLines {
+            original.progress[line.id] = LineProgress(attempts: [Attempt(sessionId: "session", score: 1, success: true, lowPrompt: true)])
+        }
+        let learned = original.assignedLines
+        for change in ["text", "speaker", "type", "delete"] {
+            var edited = original
+            let index = edited.units.firstIndex { $0.id == learned[0].id }!
+            switch change {
+            case "text": edited.units[index].text = "A different line."
+            case "speaker": edited.units[index].characterId = edited.characters.last!.id
+            case "type": edited.units[index].type = .lyrics
+            default: edited.units.remove(at: index)
+            }
+            edited.reconcileProgress(previous: original)
+            XCTAssertNil(edited.progress[learned[0].id], change)
+            XCTAssertEqual(edited.progress[learned[1].id], original.progress[learned[1].id], change)
+        }
+        var renamed = original
+        renamed.title = "New title"
+        renamed.characters[0].name = "New role name"
+        renamed.reconcileProgress(previous: original)
+        XCTAssertEqual(renamed.progress, original.progress)
+    }
+
+    func testRemovedOrMovedBookmarksAreCleared() {
+        var original = Demo.show()
+        let line = original.assignedLines[0]
+        original.lastSceneId = line.sceneId
+        original.lastUnitId = line.id
+        var moved = original
+        moved.units[moved.units.firstIndex { $0.id == line.id }!].sceneId = moved.scenes[1].id
+        moved.reconcileProgress(previous: original)
+        XCTAssertNil(moved.lastUnitId)
+        XCTAssertEqual(moved.lastSceneId, line.sceneId)
+        var removed = original
+        removed.scenes.removeAll { $0.id == line.sceneId }
+        removed.reconcileProgress(previous: original)
+        XCTAssertNil(removed.lastSceneId)
+        XCTAssertNil(removed.lastUnitId)
+    }
+
+    func testHintsAndDemonstrationsNeverEarnUnpromptedCredit() {
+        let show = Demo.show()
+        var engine = PracticeEngine(show: show, sceneId: show.scenes[0].id, mode: .offBook)
+        engine.didDemonstrate()
+        XCTAssertFalse(engine.lowPrompt)
+        engine.next(); engine.next()
+        XCTAssertTrue(engine.lowPrompt)
+        engine.hint()
+        XCTAssertFalse(engine.lowPrompt)
+        var visible = show
+        visible.settings.showPracticeText = true
+        XCTAssertFalse(PracticeEngine(show: visible, sceneId: visible.scenes[0].id, mode: .practice).lowPrompt)
+    }
 }

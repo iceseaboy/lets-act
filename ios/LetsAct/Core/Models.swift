@@ -152,6 +152,17 @@ struct Show: Identifiable, Codable, Equatable {
         return errors
     }
 
+    /// Retain learning credit only while the learned words and role are unchanged.
+    mutating func reconcileProgress(previous: Show?) {
+        let validIds = Set(units.filter { line in
+            guard let old = previous?.units.first(where: { $0.id == line.id }) else { return false }
+            return line.type.isSpoken && old.text == line.text && old.characterId == line.characterId && old.type == line.type
+        }.map(\.id))
+        progress = progress.filter { validIds.contains($0.key) }
+        if !scenes.contains(where: { $0.id == lastSceneId }) { lastSceneId = nil; lastUnitId = nil }
+        if !units.contains(where: { $0.id == lastUnitId && $0.sceneId == lastSceneId }) { lastUnitId = nil }
+    }
+
     mutating func mergeCharacter(_ source: String, into destination: String) {
         guard source != destination, characters.contains(where: { $0.id == destination }) else { return }
         for index in units.indices where units[index].characterId == source { units[index].characterId = destination }

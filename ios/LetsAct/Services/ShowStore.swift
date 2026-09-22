@@ -11,14 +11,16 @@ final class ShowStore: ObservableObject {
         // Test data uses a separate container; a UI test can never reset a user's shows.
         #if DEBUG
         let testing = ProcessInfo.processInfo.arguments.contains("--ui-testing")
+        let preserveTestData = ProcessInfo.processInfo.arguments.contains("--preserve-ui-test-data")
         #else
         let testing = false
+        let preserveTestData = false
         #endif
         let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent(testing ? "LetsAct-UITests" : "LetsAct", isDirectory: true)
         file = directory.appendingPathComponent("shows-v1.json")
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            if testing && FileManager.default.fileExists(atPath: file.path) { try FileManager.default.removeItem(at: file) }
+            if testing && !preserveTestData && FileManager.default.fileExists(atPath: file.path) { try FileManager.default.removeItem(at: file) }
             if FileManager.default.fileExists(atPath: file.path) {
                 let loaded = try JSONDecoder().decode(LibraryState.self, from: Data(contentsOf: file))
                 guard loaded.schemaVersion == 1 else { throw CocoaError(.fileReadCorruptFile) }
@@ -37,6 +39,8 @@ final class ShowStore: ObservableObject {
     func show(_ id: String) -> Show? { state.shows.first { $0.id == id } }
     func save(_ show: Show) {
         guard !loadFailed else { error = "Saving is unavailable while the existing library cannot be read. Your original file is preserved; restore it before making changes."; return }
+        var show = show
+        show.reconcileProgress(previous: self.show(show.id))
         if let index = state.shows.firstIndex(where: { $0.id == show.id }) { state.shows[index] = show }
         else { state.shows.append(show) }
         state.activeShowId = show.id

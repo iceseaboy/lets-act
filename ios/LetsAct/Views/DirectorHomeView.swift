@@ -8,16 +8,19 @@ struct DirectorHomeView: View {
     @State private var importing = false
     @State private var settings = false
     @State private var deleting: Show?
+    @State private var compactColumn: NavigationSplitViewColumn = .sidebar
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(preferredCompactColumn: $compactColumn) {
             List(selection: $selection) {
                 Section("Your shows") {
                     ForEach(store.state.shows) { show in
-                        VStack(alignment: .leading, spacing: 6) {
+                        NavigationLink(value: show.id) {
+                          VStack(alignment: .leading, spacing: 6) {
                             Text(show.title).font(.headline)
                             Text("\(show.scenes.count) scenes · \(show.readyToPractice ? "Ready" : "Needs review")").font(.caption).foregroundStyle(.secondary)
-                        }.padding(.vertical, 8).tag(show.id)
+                          }.padding(.vertical, 8)
+                        }.tag(show.id).accessibilityIdentifier("show-\(show.title)")
                     }
                 }
                 Button("Create a show", systemImage: "plus") { importing = true }.frame(minHeight: 48)
@@ -62,7 +65,7 @@ struct DirectorHomeView: View {
                 ContentUnavailableView { Label("Set the stage", systemImage: "theatermasks") } description: { Text("Bring a script to life. Add your first show.") } actions: { Button("Create a show") { importing = true }.buttonStyle(StageButtonStyle()) }
             }
         }
-        .sheet(isPresented: $importing) { ImportShowView { show in store.save(show); selection = show.id } }
+        .sheet(isPresented: $importing) { ImportShowView { show in store.save(show); selection = show.id; compactColumn = .detail } }
         .sheet(isPresented: $settings) { ParserSettingsView() }
         .confirmationDialog("Delete this show and its progress from this device?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible) {
             Button("Delete show", role: .destructive) { if let show = deleting { store.delete(show.id); selection = nil }; deleting = nil }

@@ -123,7 +123,7 @@ struct ShowEditorView: View {
                 Label("\(show.assignedLines.count) child lines", systemImage: "text.bubble")
                 Text("Check every line, speaker, scene, and child role. Confirming makes this script available in child mode.")
             }
-            if !show.validationErrors.isEmpty || show.childRoles.isEmpty {
+            if !show.validationErrors.isEmpty || show.assignedLines.isEmpty {
                 Section("Still to review") {
                     ForEach(show.validationErrors, id: \.self) { Text($0).foregroundStyle(.red) }
                     if show.childRoles.isEmpty { Text("Choose at least one child role in Cast & roles.") }
@@ -141,15 +141,6 @@ struct ShowEditorView: View {
     }
     private func save(reviewed: Bool) {
         show.reviewed = reviewed
-        if let old = store.show(show.id) {
-            for line in show.units {
-                if let previous = old.units.first(where: { $0.id == line.id }), previous.text != line.text || previous.characterId != line.characterId || previous.type != line.type {
-                    show.progress.removeValue(forKey: line.id)
-                }
-            }
-        }
-        let ids = Set(show.units.map(\.id))
-        show.progress = show.progress.filter { ids.contains($0.key) }
         if let onSave { onSave(show) } else { store.save(show); dismiss() }
     }
 }

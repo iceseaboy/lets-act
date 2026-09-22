@@ -10,6 +10,7 @@ private struct PracticeRoute: Identifiable {
 struct ChildHomeView: View {
     @EnvironmentObject private var store: ShowStore
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.scenePhase) private var scenePhase
     @State private var parentGate = false
     @State private var director = false
     @State private var unlocked = false
@@ -48,6 +49,13 @@ struct ChildHomeView: View {
         .fullScreenCover(isPresented: $director) { DirectorHomeView() }
         .fullScreenCover(item: $route) { route in PracticeView(show: route.show, sceneId: route.sceneId, mode: route.mode) }
         .sheet(isPresented: $progress) { if let show = store.activeShow { NavigationStack { ProgressScreen(show: show) } } }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .background {
+                unlocked = false
+                parentGate = false
+                director = false
+            }
+        }
     }
 
     @ViewBuilder private func roleHome(_ show: Show) -> some View {
